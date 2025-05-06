@@ -1,0 +1,128 @@
+@startuml
+skinparam componentStyle rectangle
+
+
+class spoorwegToestanden {
+  +setup()
+  +loop()
+  -northGreen
+  -southGreen
+  -northRequest
+  -southRequest
+  -westTrain
+  -eastTrain
+  -northYellowActive
+  -southYellowActive
+  -crossingState
+}
+
+class Toestanden {
+  +loopToestanden()
+  +setupAll()
+  +loopAll()
+  +NORTH_TO_RED_ENTRY() etc.
+  -redTimer
+  -waitRedTime
+  -greenTimer
+  -waitGreenTime
+  -northYellowStartTime
+  -southYellowStartTime
+  -yellowDuration
+}
+
+class Button {
+  +handleSerialInput()
+  +setupButtons()
+  +loopButtons()
+  -input
+}
+
+class Buzzer {
+  +setupBuzzer()
+  +tickBuzzer()
+  +burstTickBuzzer()
+  -buzzer
+  -buzzerInterval
+  -burstTickBuzzerInterval
+  -lastBuzzerTime
+  -buzzerOn
+  -burstCount
+  -lastBurstTime
+  -inBurst
+  -currentMillis
+}
+
+class Display {
+  +setupDisplay()
+  +isBitSet()
+  +countdownDisplay()
+  +displayDigit()
+  -CLOCK_PIN
+  -LATCH_PIN
+  -DATA_PIN
+  -displayTimer
+  -displayInterval
+  -countdown
+  -bit
+}
+
+class LEDs {
+  +setupLeds()
+  +blinkBothYellow()
+  +setNorthYellow() etc.
+  -northGreenLed
+  -northRedLed
+  -northYellowLed
+  -southGreenLed
+  -southRedLed
+  -southYellowLed
+  -blinkInterval
+  -lastBlinkTime
+  -yellowOn
+}
+
+class Potmeter {
+    +loopPotmeter()
+    -potPin
+    -lastReadingTime
+    -readingAmountPerSec
+    -readingInterval
+    -waitGreenMultiplier
+    -currentReadingAmount
+    -potReadings[]
+    -sum
+  }
+
+class Servo {
+  +setupServo()
+  +openBarrier()
+  +closeBarrier()
+  -SERVOPIN
+  -previous_millis
+  -speed
+  -servo_stand
+  -currentMillis
+}
+
+class Testing {
+  -testState
+  +test()
+}
+
+spoorwegToestanden --> Toestanden
+Toestanden --> Button
+Toestanden --> Buzzer
+Toestanden --> Display
+Toestanden --> LEDs
+Toestanden --> Servo
+Toestanden --> Testing
+Toestanden --> Potmeter
+
+LEDs --> Servo
+
+Testing --> LEDs
+Testing --> Buzzer
+Testing --> Servo
+Testing --> Display
+
+@enduml
