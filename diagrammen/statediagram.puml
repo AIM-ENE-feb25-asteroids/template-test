@@ -1,0 +1,49 @@
+ @startuml
+ [*] --> IDLE
+
+IDLE -up-> TESTING : testing == true
+IDLE --> TRAIN_ARRIVAL_WEST : westTrain == true
+IDLE --> TRAIN_ARRIVAL_EAST : eastTrain == true
+IDLE --> NORTH_TO_GREEN : northRequest && southRequest && !northGreen && !southGreen && lastGreen == SOUTH
+IDLE --> SOUTH_TO_GREEN : northRequest && southRequest && !northGreen && !southGreen && lastGreen == NORTH
+IDLE --> NORTH_TO_GREEN : northRequest && !northGreen && !southGreen
+IDLE --> SOUTH_TO_GREEN : southRequest && !northGreen && !southGreen
+IDLE --> NORTH_TO_RED : southRequest && northGreen
+IDLE --> SOUTH_TO_RED :  northRequest && southGreen
+
+TESTING : ENTRY/ X\nDO/test()\nEXIT/set both red
+TESTING --> IDLE : !testing
+
+NORTH_TO_RED : ENTRY/setNorthYellow\nDO/wait yellowDuration\nEXIT/setNorthRed
+NORTH_TO_RED -down-> WAIT_AFTER_BOTH_RED : yellow expired
+
+SOUTH_TO_RED : ENTRY/setSouthYellow\nDO/wait yellowDuration\nEXIT/setSouthRed
+SOUTH_TO_RED -down-> WAIT_AFTER_BOTH_RED : yellow expired
+
+WAIT_AFTER_BOTH_RED : ENTRY/redTimer = millis()\nDO/wait waitRedTime
+WAIT_AFTER_BOTH_RED -right-> IDLE : timer expired
+
+NORTH_TO_GREEN : ENTRY/setNorthGreen, greenTimer = millis()\nDO/northRequest = false
+NORTH_TO_GREEN --> IDLE : greenTime || trainArrivesGreenTimer expired
+
+SOUTH_TO_GREEN : ENTRY/setSouthGreen, greenTimer = millis()\nDO/southRequest = false
+SOUTH_TO_GREEN --> IDLE : greenTime || trainArrivesGreenTimer expired
+
+TRAIN_ARRIVAL_WEST : ENTRY/print, green to yellow\nDO/wait for yellow to go red or go clearance
+TRAIN_ARRIVAL_WEST --> CLEARANCE : both red
+
+TRAIN_ARRIVAL_EAST : ENTRY/print, green to yellow\nDO/wait for yellow to go red or go clearance
+TRAIN_ARRIVAL_EAST --> CLEARANCE : both red
+
+CLEARANCE : ENTRY/set both red\nDO/blinkYellow, closeBarrier, tickBuzzer
+CLEARANCE --> TRAIN_PASSES : barrierClosed
+
+TRAIN_PASSES : DO/blinkYellow
+TRAIN_PASSES --> TRAIN_PASSED : westTrain && eastTrain
+
+TRAIN_PASSED : DO/blinkYellow, openBarrier, tickBuzzer
+TRAIN_PASSED -up-> WAIT_DISPLAY : barrierOpen
+
+WAIT_DISPLAY : ENTRY/\nDO/blinkYellow, burstBuzzer
+WAIT_DISPLAY --> IDLE : countdownDisplay == false
+ @enduml
